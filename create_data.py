@@ -58,12 +58,12 @@ def create_label_dummies(df):
     print "Currnet df # of columns: ", len(df.columns)
 
     #create Dest dumimies
-    df.DEST = df.DEST.map(lambda x: "dest_"+x)
-    df_dest = pd.get_dummies(df.DEST)
-    df = pd.concat([df, df_dest], axis=1)
+    # df.DEST = df.DEST.map(lambda x: "dest_"+x)
+    # df_dest = pd.get_dummies(df.DEST)
+    # df = pd.concat([df, df_dest], axis=1)
     df.pop('DEST')
-    print "\nDest # of columns: ", len(df_dest.columns)
-    print "Currnet df # of columns: ", len(df.columns)
+    # print "\nDest # of columns: ", len(df_dest.columns)
+    print "Pop Dest, Currnet df # of columns: ", len(df.columns)
 
     #create Distance group dummies
     df_distance_group = pd.get_dummies(df.DISTANCE_GROUP)
@@ -73,11 +73,10 @@ def create_label_dummies(df):
     df.pop('DISTANCE_GROUP')
     print "\nDistance group # of columns: ", len(df_distance_group.columns)
     print "Currnet df # of columns: ", len(df.columns)
-
     return df
 
 #create dataset for modeling
-def create_data():
+def create_dataset():
     df = concat_df()
     print "After concatenating # of columns: ", len(df.columns)
     df = group_dep_time(df)
