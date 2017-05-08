@@ -64,51 +64,33 @@ def run_models(train_x, train_y, cv_num=5):
                'n_estimators': [10, 25, 40, 50],
                'random_state': [1]}
 
-    gd_grid = {'learning_rate': [0.1, 0.05, 0.02, 0.01],
-               'max_depth': [4, 6],
-               'min_samples_leaf': [3, 5, 9, 17],
-               'max_features': [1.0, 0.3, 0.1],
-               'n_estimators': [25,40, 50, 100],
-               'random_state': [1]}
-
-    ada_grid = {'learning_rate': [0.1, 0.05, 0.02, 0.01],
-               'min_samples_leaf': [3, 5, 9, 17],
-               'n_estimators': [25,40, 50, 100],
-               'random_state': [1]}
+    # gd_grid = {'learning_rate': [0.1, 0.05, 0.02, 0.01],
+    #            'max_depth': [4, 6],
+    #            'min_samples_leaf': [3, 5, 9, 17],
+    #            'max_features': [1.0, 0.3, 0.1],
+    #            'n_estimators': [25,40, 50, 100],
+    #            'random_state': [1]}
+    #
+    # ada_grid = {'learning_rate': [0.1, 0.05, 0.02, 0.01],
+    #            'min_samples_leaf': [3, 5, 9, 17],
+    #            'n_estimators': [25,40, 50, 100],
+    #            'random_state': [1]}
 
     rf_grid_search = grid_search(RandomForestClassifier(), rf_grid, train_x, train_y, num_folds=cv_num)
-    gd_grid_search = grid_search(GradientBoostingClassifier(), gd_grid, train_x, train_y,num_folds=cv_num)
-    ada_grid_search = grid_search(AdaBoostClassifier(), ada_grid, train_x, train_y,num_folds=cv_num)
+    # gd_grid_search = grid_search(GradientBoostingClassifier(), gd_grid, train_x, train_y,num_folds=cv_num)
+    # ada_grid_search = grid_search(AdaBoostClassifier(), ada_grid, train_x, train_y,num_folds=cv_num)
 
     #Best models
     rf_best = rf_grid_search.best_estimator_
-    gd_best = gd_grid_search.best_estimator_
-    ada_best = ada_grid_search.best_estimator_
+    # gd_best = gd_grid_search.best_estimator_
+    # ada_best = ada_grid_search.best_estimator_
 
     cross_val(rf_best, train_x, train_y, num_folds=cv_num)
-    cross_val(gd_best, train_x, train_y, num_folds=cv_num)
-    cross_val(ada_best, train_x, train_y, num_folds=cv_num)
+    # cross_val(gd_best, train_x, train_y, num_folds=cv_num)
+    # cross_val(ada_best, train_x, train_y, num_folds=cv_num)
 
-    return rf_best, gd_best, ada_best
-
-def plot_feature_importances(model):
-    colnames = get_spam_names()
-
-    feat_import = model.feature_importances_
-
-    top10_nx = np.argsort(feat_import)[::-1][0:10]
-
-    feat_import = feat_import[top10_nx]
-    #normalize:
-    feat_import = feat_import /feat_import.max()
-    colnames = colnames[top10_nx]
-
-    x_ind = np.arange(10)
-
-    plt.barh(x_ind, feat_import, height=.3, align='center')
-    plt.ylim(x_ind.min() + .5, x_ind.max() + .5)
-    plt.yticks(x_ind, colnames[x_ind])
-    return top10_nx
+    # return rf_best, gd_best, ada_best
+    return rf_best
 
 def feature_importance(X_test, y_test, estimator, df):
     #Use sklearn's model to get the feature importances
@@ -140,41 +122,42 @@ def main():
     df = create_dataset()
     X, y = feature_target_split(df)
     X_train, X_test, y_train, y_test = train_test_split(X, y)
-    rf_best, gd_best, ada_best = run_models(X_train, y_train, cv_num=5)
+    '''
+    I would use cv_num = 5 or higher, but it will take too long time to run on local
+    so I used cv_num=2
+    '''
+    rf_best = run_models(X_train, y_train, cv_num=2)
 
     with open('picklefiles/rf.pkl', 'wb') as output:
         pickle.dump(rf_best, output, pickle.HIGHEST_PROTOCOL)
-    with open('picklefiles/gd.pkl', 'wb') as output:
-        pickle.dump(X, output, pickle.HIGHEST_PROTOCOL)
-    with open('picklefiles/ada.pkl', 'wb') as output:
-        pickle.dump(ada_best, output, pickle.HIGHEST_PROTOCOL)
 
     print rf_best.__class__.__name__
     quality(X_test, y_test, rf_best)
     feature_importance(X_test, y_test, gd_best, df)
 
-    print gd_best.__class__.__name__
-    quality(X_test, y_test, gd_best)
-    feature_importance(X_test, y_test, rf_best, df)
-
-    print ada_best.__class__.__name__
-    quality(X_test, y_test, ada_best)
-    feature_importance(X_test, y_test, ada_best, df)
-
 if __name__ == '__main__':
     df = create_dataset()
     X, y = feature_target_split(df)
     X_train, X_test, y_train, y_test = train_test_split(X, y)
-    # rf_best, gd_best, ada_best = run_models(X_train, y_train, cv_num=5)
-    #
-    # print f_best.__class__.__name__
-    # quality(X_test, y_test, rf_best)
-    # feature_importance(X_test, y_test, gd_best, df)
-    #
-    # print gd_best.__class__.__name__
-    # quality(X_test, y_test, gd_best)
-    # feature_importance(X_test, y_test, rf_best, df)
-    #
-    # print ada_best.__class__.__name__
-    # quality(X_test, y_test, ada_best)
-    # feature_importance(X_test, y_test, ada_best, df)
+#    rf_best = run_models(X_train, y_train, cv_num=5)
+
+    #Random Forest
+    rf = RandomForestClassifier()
+    cross_val(rf, train_x, train_y, num_folds=5)
+    print rf.__class__.__name__
+    quality(X_test, y_test, rf)
+    feature_importance(X_test, y_test, rf, df)
+
+    #Gradient Boosting
+    gd = GradientBoostingClassifier()
+    cross_val(gd, train_x, train_y, num_folds=5)
+    print gd.__class__.__name__
+    quality(X_test, y_test, gd)
+    feature_importance(X_test, y_test, gd, df)
+
+    #Ada Boost
+    ada = AdaBoostClassifier()
+    cross_val(gd, train_x, train_y, num_folds=5)
+    print gd.__class__.__name__
+    quality(X_test, y_test, gd)
+    feature_importance(X_test, y_test, gd, df)

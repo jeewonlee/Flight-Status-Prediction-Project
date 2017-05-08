@@ -64,17 +64,17 @@ def run_models(train_x, train_y, cv_num=5):
                'n_estimators': [10, 25, 40, 50],
                'random_state': [1]}
 
-    gd_grid = {'learning_rate': [0.1, 0.05, 0.02, 0.01],
-               'max_depth': [4, 6],
-               'min_samples_leaf': [3, 5, 9, 17],
-               'max_features': [1.0, 0.3, 0.1],
-               'n_estimators': [25,40, 50, 100],
-               'random_state': [1]}
-
-    ada_grid = {'learning_rate': [0.1, 0.05, 0.02, 0.01],
-               'min_samples_leaf': [3, 5, 9, 17],
-               'n_estimators': [25,40, 50, 100],
-               'random_state': [1]}
+    # gd_grid = {'learning_rate': [0.1, 0.05, 0.02, 0.01],
+    #            'max_depth': [4, 6],
+    #            'min_samples_leaf': [3, 5, 9, 17],
+    #            'max_features': [1.0, 0.3, 0.1],
+    #            'n_estimators': [25,40, 50, 100],
+    #            'random_state': [1]}
+    #
+    # ada_grid = {'learning_rate': [0.1, 0.05, 0.02, 0.01],
+    #            'min_samples_leaf': [3, 5, 9, 17],
+    #            'n_estimators': [25,40, 50, 100],
+    #            'random_state': [1]}
 
     rf_grid_search = grid_search(RandomForestClassifier(), rf_grid, train_x, train_y, num_folds=cv_num)
     gd_grid_search = grid_search(GradientBoostingClassifier(), gd_grid, train_x, train_y,num_folds=cv_num)
@@ -90,25 +90,6 @@ def run_models(train_x, train_y, cv_num=5):
     cross_val(ada_best, train_x, train_y, num_folds=cv_num)
 
     return rf_best, gd_best, ada_best
-
-def plot_feature_importances(model):
-    colnames = get_spam_names()
-
-    feat_import = model.feature_importances_
-
-    top10_nx = np.argsort(feat_import)[::-1][0:10]
-
-    feat_import = feat_import[top10_nx]
-    #normalize:
-    feat_import = feat_import /feat_import.max()
-    colnames = colnames[top10_nx]
-
-    x_ind = np.arange(10)
-
-    plt.barh(x_ind, feat_import, height=.3, align='center')
-    plt.ylim(x_ind.min() + .5, x_ind.max() + .5)
-    plt.yticks(x_ind, colnames[x_ind])
-    return top10_nx
 
 def feature_importance(X_test, y_test, estimator, df):
     #Use sklearn's model to get the feature importances
@@ -165,16 +146,24 @@ if __name__ == '__main__':
     df = create_dataset()
     X, y = feature_target_split(df)
     X_train, X_test, y_train, y_test = train_test_split(X, y)
-    # rf_best, gd_best, ada_best = run_models(X_train, y_train, cv_num=5)
+
+    #Random Forest
+    rf = RandomForestClassifier()
+    cross_val(rf, train_x, train_y, num_folds=5)
+    print rf.__class__.__name__
+    quality(X_test, y_test, rf)
+    feature_importance(X_test, y_test, rf, df)
+
+    # #Gradient Boosting
+    # gd = GradientBoostingClassifier()
+    # cross_val(gd, train_x, train_y, num_folds=5)
+    # print gd.__class__.__name__
+    # quality(X_test, y_test, gd)
+    # feature_importance(X_test, y_test, gd, df)
     #
-    # print f_best.__class__.__name__
-    # quality(X_test, y_test, rf_best)
-    # feature_importance(X_test, y_test, gd_best, df)
-    #
-    # print gd_best.__class__.__name__
-    # quality(X_test, y_test, gd_best)
-    # feature_importance(X_test, y_test, rf_best, df)
-    #
-    # print ada_best.__class__.__name__
-    # quality(X_test, y_test, ada_best)
-    # feature_importance(X_test, y_test, ada_best, df)
+    # #Ada Boost
+    # ada = AdaBoostClassifier()
+    # cross_val(gd, train_x, train_y, num_folds=5)
+    # print gd.__class__.__name__
+    # quality(X_test, y_test, gd)
+    # feature_importance(X_test, y_test, gd, df)

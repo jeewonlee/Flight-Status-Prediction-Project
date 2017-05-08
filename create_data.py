@@ -57,13 +57,20 @@ def create_label_dummies(df):
     print "\nOrigin # of columns: ", len(df_origin.columns)
     print "Currnet df # of columns: ", len(df.columns)
 
+    #create Time group dumimies
+    df_dep_time = pd.get_dummies(df.DEP_TIME_BINS)
+    df = pd.concat([df, df_dep_time], axis=1)
+    df.pop('DEP_TIME_BINS')
+    print "\nDeparture Time # of columns: ", len(df_dep_time.columns)
+    print "Currnet df # of columns: ", len(df.columns)
+
     #create Dest dumimies
     # df.DEST = df.DEST.map(lambda x: "dest_"+x)
     # df_dest = pd.get_dummies(df.DEST)
     # df = pd.concat([df, df_dest], axis=1)
     df.pop('DEST')
     # print "\nDest # of columns: ", len(df_dest.columns)
-    print "Pop Dest, Currnet df # of columns: ", len(df.columns)
+    print "\nPop Dest, Currnet df # of columns: ", len(df.columns)
 
     #create Distance group dummies
     df_distance_group = pd.get_dummies(df.DISTANCE_GROUP)
